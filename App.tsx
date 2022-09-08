@@ -8,8 +8,10 @@
  * @format
  */
 
-import React, {type PropsWithChildren} from 'react';
+import React from 'react';
 import {
+  Button,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -19,43 +21,36 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Random values must be imported first for security.
+import 'react-native-get-random-values';
+import '@ethersproject/shims';
+import {Wallet} from 'ethers';
 
-const Section: React.FC<
-  PropsWithChildren<{
-    title: string;
-  }>
-> = ({children, title}) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+import {utils as SecpUtils} from '@noble/secp256k1';
+
+import 'text-encoding';
+import 'web-streams-polyfill';
+import '@azure/core-asynciterator-polyfill';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+if (!global.localStorage) {
+  global.localStorage = AsyncStorage;
+}
+
+// Necessary for @peculiar/webcrypto.
+if (!global.Buffer) {
+  global.Buffer = require('safe-buffer').Buffer;
+}
+import {Crypto as WebCrypto} from '@peculiar/webcrypto';
+if (!global.crypto.subtle) {
+  // Only polyfill SubtleCrypto as we prefer `react-native-get-random-values` for getRandomValues.
+  const webCrypto = new WebCrypto();
+  global.crypto.subtle = webCrypto.subtle;
+}
+
+import {Client} from '@xmtp/xmtp-js';
+
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -63,6 +58,8 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const account = new Wallet(SecpUtils.randomPrivateKey());
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -73,30 +70,35 @@ const App = () => {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <Header />
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          <Text style={styles.sectionTitle}>Example Chat App</Text>
+          <Text>{account.address}</Text>
+          <Button title="Send a gm" onPress={() => sendGm(account)} />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
+async function sendGm(account: Wallet) {
+  console.log('creating xmtp client');
+  try {
+    const xmtp = await Client.create(account);
+    const conversation = await xmtp.conversations.newConversation(
+      'ENTER RECEIVING ACCOUNT ADDRESS HERE',
+    );
+    const message = await conversation.send(
+      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
+    );
+    console.log('sent message: ' + message.content);
+  } catch (error) {
+    console.log(`error creating client: ${error}`);
+    throw error;
+  }
+}
 
 const styles = StyleSheet.create({
   sectionContainer: {
