@@ -2,18 +2,19 @@
 
 This is an example of how to import the [xmtp-js](https://github.com/xmtp/xmtp-js) library into a React Native app.
 
-**WARNING:** This should only be used experimentally while we remove our dependency on [PeculiarVentures/webcrypto](https://github.com/PeculiarVentures/webcrypto) as a SubtleCrypto polyfill since it includes the following warning.
+## Warning
+This should only be used experimentally while we remove our dependency on [PeculiarVentures/webcrypto](https://github.com/PeculiarVentures/webcrypto) (a SubtleCrypto polyfill) since it includes the following warning.
 >At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.
 
 ## Getting started
 
 1. Follow the [React Native guide](https://reactnative.dev/docs/environment-setup) to set up CLI environment
 1. Clone this repo and `cd example_chat_rn`
-1. Edit the blockchain account address in `App.tsx` to point to the address you'd like to send a message to.
+1. Edit the blockchain account address in `App.tsx` to point to the address you'd like to send a message to
 1. `npx react-native start`
 1. `npx react-native run-ios` or `npx react-native run-android`
 1. Press the `Send a gm` button once the app is running
-1. A message will arrive in the account provided in Step 3.
+1. A message will arrive in the account provided in Step 3
 
 ## Blockers for production
 
