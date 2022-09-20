@@ -21,33 +21,9 @@ import {
   View,
 } from 'react-native';
 
-// Random values must be imported first for security.
-import 'react-native-get-random-values';
-import '@ethersproject/shims';
+import './polyfills.js';
 import {Wallet} from 'ethers';
-
 import {utils as SecpUtils} from '@noble/secp256k1';
-
-import 'text-encoding';
-import 'web-streams-polyfill';
-import '@azure/core-asynciterator-polyfill';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-if (!global.localStorage) {
-  global.localStorage = AsyncStorage;
-}
-
-// Necessary for @peculiar/webcrypto.
-if (!global.Buffer) {
-  global.Buffer = require('safe-buffer').Buffer;
-}
-import {Crypto as WebCrypto} from '@peculiar/webcrypto';
-if (!global.crypto.subtle) {
-  // Only polyfill SubtleCrypto as we prefer `react-native-get-random-values` for getRandomValues.
-  const webCrypto = new WebCrypto();
-  global.crypto.subtle = webCrypto.subtle;
-}
-
 import {Client} from '@xmtp/xmtp-js';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -96,7 +72,6 @@ async function sendGm(account: Wallet) {
     console.log('sent message: ' + message.content);
   } catch (error) {
     console.log(`error creating client: ${error}`);
-    throw error;
   }
 }
 
