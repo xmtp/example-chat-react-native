@@ -19,7 +19,7 @@
     "events": "^3.3.0",
     "process": "^0.11.10",
     "react": "18.1.0",
-    "react-native": "0.70.0",
+    "react-native": "0.70.1",
     "react-native-get-random-values": "^1.8.0",
     "stream-browserify": "^3.0.0",
     "text-encoding": "^0.7.0",
