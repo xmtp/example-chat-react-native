@@ -1,97 +1,72 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
+ * Example React Native App using XMTP.
  */
-
 import React from 'react';
-import {
-  Button,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
+// Polyfill necessary xmtp-js libraries for React Native.
 import './polyfills.js';
-import {Wallet} from 'ethers';
-import {utils as SecpUtils} from '@noble/secp256k1';
-import {Client} from '@xmtp/xmtp-js';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+// import {
+//   createStorage,
+//   WagmiConfig,
+//   createClient,
+//   configureChains,
+//   chain,
+// } from 'wagmi';
+// import {noopStorage} from '@wagmi/core';
+// import {infuraProvider} from 'wagmi/providers/infura';
+// import {createAsyncStoragePersister} from '@tanstack/query-async-storage-persister';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import Home from './components/Home';
+import * as Linking from 'expo-linking';
+import {Text} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import WalletConnectProvider from '@walletconnect/react-native-dapp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const prefix = Linking.createURL('/');
+
+export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  /**
+   * Initialize the wagmi client for obtaining signatures.
+   * https://wagmi.sh/docs/getting-started
+   * https://github.com/wagmi-dev/wagmi/discussions/533
+   */
+  // const {provider, webSocketProvider} = configureChains(
+  //   [chain.mainnet, chain.polygon],
+  //   [infuraProvider({infuraId: INFURA_API_KEY})],
+  // );
+  // const asyncStoragePersistor = createAsyncStoragePersister({
+  //   storage: AsyncStorage,
+  // });
+  // const wagmiClient = createClient({
+  //   persister: asyncStoragePersistor,
+  //   storage: createStorage({
+  //     storage: noopStorage,
+  //   }),
+  //   provider,
+  //   webSocketProvider,
+  // });
+  const linking = {
+    prefixes: [prefix],
   };
 
-  const account = new Wallet(SecpUtils.randomPrivateKey());
+  const APP_SCHEME = 'examplexmtp://';
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text>{account.address}</Text>
-          <Button title="Send a gm" onPress={() => sendGm(account)} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+      <WalletConnectProvider
+        redirectUrl={APP_SCHEME}
+        storageOptions={{
+          // @ts-expect-error: Internal
+          asyncStorage: AsyncStorage,
+        }}>
+        <Home />
+      </WalletConnectProvider>
+    </NavigationContainer>
   );
 };
-
-async function sendGm(account: Wallet) {
-  console.log('creating xmtp client');
-  try {
-    const xmtp = await Client.create(account);
-    const conversation = await xmtp.conversations.newConversation(
-      'ENTER RECEIVING ACCOUNT ADDRESS HERE',
-    );
-    const message = await conversation.send(
-      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-    );
-    console.log('sent message: ' + message.content);
-  } catch (error) {
-    console.log(`error creating client: ${error}`);
-  }
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
