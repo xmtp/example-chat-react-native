@@ -12,21 +12,10 @@ import {
   View,
 } from 'react-native';
 
-// Polyfill necessary xmtp-js libraries for React Native.
-// import '../polyfills.js';
-
 import {ethers, Signer} from 'ethers';
 import {Client} from '@xmtp/xmtp-js';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {
-  useWalletConnect,
-  // withWalletConnect,
-} from '@walletconnect/react-native-dapp';
-// import {providers} from 'ethers';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import WalletConnectProvider from '@walletconnect/web3-provider';
-// import Authenticating from './Authenticating';
-import Error from './Error';
+import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import {INFURA_API_KEY} from '../App';
 
@@ -40,64 +29,43 @@ const Home = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  console.log('before');
   const connector = useWalletConnect();
-  console.log('after');
 
   const connectWallet = React.useCallback(async () => {
-    console.log('### enable');
     const provider = new WalletConnectProvider({
       infuraId: INFURA_API_KEY,
       connector: connector,
       qrcode: false,
     });
-    console.log('### after provider');
+    await connector.connect();
     await provider.enable();
     const ethersProvider = new ethers.providers.Web3Provider(provider);
     const newSigner = ethersProvider.getSigner() as Signer;
     const newAddress = await newSigner.getAddress();
     setAddress(newAddress);
     setSigner(newSigner);
-    await connector.connect();
   }, [connector]);
 
   const disconnectWallet = React.useCallback(async () => {
     await connector.killSession();
   }, [connector]);
 
-  // const connectWallet = React.useCallback(async () => {
-  //   await connector.connect();
-  //   const walletConnectProvider = new WalletConnectProvider({
-  //     infuraId: INFURA_API_KEY,
-  //     chainId: 1,
-  //     connector: connector,
-  //     qrcode: false,
-  //   });
-  //   const provider = new providers.Web3Provider(walletConnectProvider);
-  //   const newSigner = provider.getSigner() as Signer;
-  //   const newAddress = await newSigner.getAddress();
-  //   setAddress(newAddress);
-  //   setSigner(newSigner);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  // const {connect} = useConnect({
-  //   connector: new WalletConnectConnector({
-  //     options: {
-  //       qrcode: false,
-  //       connector,
-  //     },
-  //   }),
-  // });
-
-  // useEffect(() => {
-  //   if (connector?.accounts?.length) {
-  //     connect();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [connector]);
-
-  // const {data: signer, isLoading, error} = useSigner();
+  const sendGm = React.useCallback(async () => {
+    if (!client) {
+      return;
+    }
+    try {
+      const conversation = await client.conversations.newConversation(
+        '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA',
+      );
+      const message = await conversation.send(
+        `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
+      );
+      console.log('sent message: ' + message.content);
+    } catch (error) {
+      console.log(`error creating client: ${error}`);
+    }
+  }, [client]);
 
   // Initialize XMTP client
   useEffect(() => {
@@ -106,7 +74,6 @@ const Home = () => {
         return;
       }
 
-      console.log('signer: ' + signer);
       if (!client) {
         /**
          * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
@@ -123,10 +90,7 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
 
-  // console.log(
-  //   'isLoading: ' + isLoading + ' error: ' + error + ' signer: ' + signer,
-  // );
-
+  // TODO(elise): Add back loading state when waiting for signature.
   // if (isLoading) {
   //   return <Authenticating />;
   // }
@@ -155,7 +119,7 @@ const Home = () => {
           <Text style={styles.sectionTitle}>Example Chat App</Text>
           <Text>{address ?? 'Sign in with XMTP'}</Text>
           {signer ? (
-            <Button title="Send a gm" onPress={() => sendGm(signer)} />
+            <Button title="Send a gm" onPress={sendGm} />
           ) : (
             <Button title="Sign in" onPress={connectWallet} />
           )}
@@ -164,22 +128,6 @@ const Home = () => {
     </SafeAreaView>
   );
 };
-
-async function sendGm(account: Signer) {
-  console.log('creating xmtp client');
-  try {
-    const xmtp = await Client.create(account);
-    const conversation = await xmtp.conversations.newConversation(
-      '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA',
-    );
-    const message = await conversation.send(
-      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-    );
-    console.log('sent message: ' + message.content);
-  } catch (error) {
-    console.log(`error creating client: ${error}`);
-  }
-}
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -201,10 +149,3 @@ const styles = StyleSheet.create({
 });
 
 export default Home;
-// export default withWalletConnect(Home, {
-//   redirectUrl: APP_SCHEME,
-//   storageOptions: {
-//     // @ts-expect-error: Internal
-//     asyncStorage: AsyncStorage,
-//   },
-// });
