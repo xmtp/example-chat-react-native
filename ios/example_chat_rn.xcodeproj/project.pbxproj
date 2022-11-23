@@ -12,6 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		55DE4E92292EA09A0052A1D7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 55DE4E91292EA09A0052A1D7 /* GoogleService-Info.plist */; };
 		7699B88040F8A987B510C191 /* libPods-example_chat_rn-example_chat_rnTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-example_chat_rn-example_chat_rnTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		CA31BAB3279A226AAAFB712C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD48797EB57364BA78B1460 /* ExpoModulesProvider.swift */; };
@@ -40,6 +41,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = example_chat_rn/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-example_chat_rn-example_chat_rnTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-example_chat_rn-example_chat_rnTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-example_chat_rn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-example_chat_rn.debug.xcconfig"; path = "Target Support Files/Pods-example_chat_rn/Pods-example_chat_rn.debug.xcconfig"; sourceTree = "<group>"; };
+		55DE4E91292EA09A0052A1D7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-example_chat_rn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-example_chat_rn.release.xcconfig"; path = "Target Support Files/Pods-example_chat_rn/Pods-example_chat_rn.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-example_chat_rn-example_chat_rnTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-example_chat_rn-example_chat_rnTests.debug.xcconfig"; path = "Target Support Files/Pods-example_chat_rn-example_chat_rnTests/Pods-example_chat_rn-example_chat_rnTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-example_chat_rn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-example_chat_rn.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,6 +130,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				55DE4E91292EA09A0052A1D7 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* example_chat_rn */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* example_chat_rnTests */,
@@ -274,6 +277,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				55DE4E92292EA09A0052A1D7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
