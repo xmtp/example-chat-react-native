@@ -20,6 +20,6 @@ export default function useGetDeviceIdentifier() {
 
     getInstallation();
     getToken();
-  });
+  }, []);
   return { deviceToken, installationId };
 }

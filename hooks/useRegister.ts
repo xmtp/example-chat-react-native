@@ -10,6 +10,9 @@ export default function useRegister(
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
   useEffect(() => {
     const register = async () => {
+      if (loading) {
+        return;
+      }
       if (!installationId || !deviceToken) {
         console.log(
           'Missing required values to register',

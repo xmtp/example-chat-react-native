@@ -20,7 +20,10 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import { INFURA_API_KEY } from '../App';
 import useRegister from '../hooks/useRegister';
 import useGetDeviceIdentifier from '../hooks/useGetDeviceIdentifier';
+import useSubscribe from '../hooks/useSubscribe';
 
+// Naive implementation of building the topic list
+// Does not include intro or invite topics
 const getTopics = async (client: Client): Promise<string[]> => {
   const convos = await client.conversations.list();
   return convos.map((convo) => convo.topic);
@@ -43,8 +46,13 @@ const Home = () => {
     installationId,
     deviceToken,
   );
+  const { loading: subscribeLoading, isSubscribed } = useSubscribe(topics);
   console.log(
     `Register loading: ${registerLoading}. isRegistered: ${isRegistered}`,
+  );
+
+  console.log(
+    `Subscribe loading: ${subscribeLoading}. isSubscribed: ${isSubscribed}. Topics: ${topics}`,
   );
 
   const connectWallet = React.useCallback(async () => {
@@ -101,6 +109,7 @@ const Home = () => {
          */
         const xmtp = await Client.create(signer);
         setClient(xmtp);
+        setTopics(await getTopics(xmtp));
       }
     };
     initXmtpClient();
