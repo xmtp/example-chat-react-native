@@ -8,11 +8,6 @@ import 'text-encoding';
 import 'web-streams-polyfill';
 import '@azure/core-asynciterator-polyfill';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-if (!global.localStorage) {
-  global.localStorage = AsyncStorage;
-}
-
 // Necessary for @peculiar/webcrypto.
 if (!global.Buffer) {
   global.Buffer = require('safe-buffer').Buffer;
