@@ -19,8 +19,8 @@ This code should only be **used experimentally** as we work to remove our depend
 ## Blockers for production
 
 1. Remove the `SubtleCrypto` dependency from `xmtp-js` or add a Node crypto workaround as proposed in [a proof of concept PR](https://github.com/xmtp/xmtp-js/pull/157). This will allow us to remove the [PeculiarVentures/webcrypto](https://github.com/PeculiarVentures/webcrypto) polyfill noted in the above [warning](#warning).
-1. Add authentication to the app instead of generating a random private key for a sender account in `App.tsx`.
-1. Nice to have: Remove unnecessary local storage dependency from `xmtp-js` to remove the polyfill in `App.tsx`.
+1. **[In Progress]** Add authentication to the app instead of generating a random private key for a sender account in `App.tsx`.
+1. **[Done]** ~~Nice to have: Remove unnecessary local storage dependency from `xmtp-js` to remove the polyfill in `App.tsx`.~~
 
 ## Requirements
 
@@ -42,4 +42,3 @@ This code should only be **used experimentally** as we work to remove our depend
 - text-encoding
 - web-streams-polyfill
 - @peculiar/webcrypto (necessary for `SubtleCrypto` but need to remove)
-- @react-native-async-storage/async-storage (necessary for `global.localStorage`)
