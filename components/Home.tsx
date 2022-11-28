@@ -1,5 +1,5 @@
 import React from 'react';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Platform,
@@ -12,24 +12,40 @@ import {
   View,
 } from 'react-native';
 
-import {ethers, Signer} from 'ethers';
-import {Client} from '@xmtp/xmtp-js';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {useWalletConnect} from '@walletconnect/react-native-dapp';
+import { ethers, Signer } from 'ethers';
+import { Client } from '@xmtp/xmtp-js';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useWalletConnect } from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import {INFURA_API_KEY} from '../App';
+import { INFURA_API_KEY } from '../App';
+import useRegister from '../hooks/useRegister';
+import useGetDeviceIdentifier from '../hooks/useGetDeviceIdentifier';
+
+const getTopics = async (client: Client): Promise<string[]> => {
+  const convos = await client.conversations.list();
+  return convos.map((convo) => convo.topic);
+};
 
 const Home = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [client, setClient] = useState<Client | undefined>(undefined);
   const [address, setAddress] = useState<string>('');
   const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  const [topics, setTopics] = useState<string[] | null>(null);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   const connector = useWalletConnect();
+  const { installationId, deviceToken } = useGetDeviceIdentifier();
+  const { loading: registerLoading, isRegistered } = useRegister(
+    installationId,
+    deviceToken,
+  );
+  console.log(
+    `Register loading: ${registerLoading}. isRegistered: ${isRegistered}`,
+  );
 
   const connectWallet = React.useCallback(async () => {
     const provider = new WalletConnectProvider({
@@ -75,6 +91,7 @@ const Home = () => {
       }
 
       if (!client) {
+        console.log('Creating client', Client);
         /**
          * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
          * If you would like to quickly create a random Wallet for testing, use:
