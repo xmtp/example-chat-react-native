@@ -485,6 +485,7 @@
 			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-example_chat_rn-example_chat_rnTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = FY4NZR34Z3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -514,6 +515,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = FY4NZR34Z3;
 				INFOPLIST_FILE = example_chat_rnTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -541,7 +543,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = example_chat_rn/example_chat_rn.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = FY4NZR34Z3;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = example_chat_rn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -570,7 +572,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = example_chat_rn/example_chat_rn.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = FY4NZR34Z3;
 				INFOPLIST_FILE = example_chat_rn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

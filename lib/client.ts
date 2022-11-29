@@ -1,4 +1,4 @@
-import { Notifications } from './gen/service_connectweb';
+import { Notifications } from '../gen/service_connectweb';
 import {
   createConnectTransport,
   createPromiseClient,

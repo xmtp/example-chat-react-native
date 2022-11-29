@@ -12,6 +12,7 @@ import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import WalletConnectProvider from '@walletconnect/react-native-dapp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setup } from './lib/notifications.js';
 
 const prefix = Linking.createURL('/');
 

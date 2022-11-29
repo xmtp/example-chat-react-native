@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import client from '../client';
-import useGetDeviceIdentifier from './useGetDeviceIdentifier';
+import client from '../lib/client';
 
 export default function useRegister(
   installationId: string | null,

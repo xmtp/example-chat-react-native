@@ -21,6 +21,8 @@ import { INFURA_API_KEY } from '../App';
 import useRegister from '../hooks/useRegister';
 import useGetDeviceIdentifier from '../hooks/useGetDeviceIdentifier';
 import useSubscribe from '../hooks/useSubscribe';
+import useRequestMessagingPermission from '../hooks/useRequestMessagingPermission';
+import { setClient as setNotificationsClient } from '../lib/notifications';
 
 // Naive implementation of building the topic list
 // Does not include intro or invite topics
@@ -41,6 +43,7 @@ const Home = () => {
   };
 
   const connector = useWalletConnect();
+  useRequestMessagingPermission();
   const { installationId, deviceToken } = useGetDeviceIdentifier();
   const { loading: registerLoading, isRegistered } = useRegister(
     installationId,
@@ -109,6 +112,7 @@ const Home = () => {
          */
         const xmtp = await Client.create(signer);
         setClient(xmtp);
+        setNotificationsClient(xmtp);
         setTopics(await getTopics(xmtp));
       }
     };
