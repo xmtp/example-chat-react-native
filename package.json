@@ -34,6 +34,7 @@
     "text-encoding": "^0.7.0",
     "url": "^0.11.0",
     "util": "^0.12.5",
+    "wagmi": "^0.8.8",
     "web-streams-polyfill": "^3.2.1"
   },
   "devDependencies": {

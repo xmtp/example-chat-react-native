@@ -38,7 +38,7 @@ const Home = () => {
       connector: connector,
       qrcode: false,
     });
-    await connector.connect();
+    // await connector.connect();
     // await provider.enable();
     const ethersProvider = new ethers.providers.Web3Provider(provider);
     const newSigner = ethersProvider.getSigner() as Signer;
