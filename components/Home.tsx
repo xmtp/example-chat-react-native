@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {useEffect, useState} from 'react';
 import {
   Button,
@@ -16,7 +16,8 @@ import {ethers, Signer} from 'ethers';
 import {Client} from '@xmtp/xmtp-js';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
-import WalletConnectProvider from '@walletconnect/web3-provider';
+import {useAccount, useConnect, useDisconnect, useSigner} from 'wagmi';
+import {WalletConnectConnector} from 'wagmi/connectors/walletConnect';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
@@ -24,33 +25,40 @@ const Home = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [client, setClient] = useState<Client | undefined>(undefined);
   const [address, setAddress] = useState<string>('');
-  const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  // const [signer, setSigner] = useState<Signer | undefined>(undefined);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   const connector = useWalletConnect();
+  const {connect} = useConnect({
+    connector: new WalletConnectConnector({
+      options: {
+        qrcode: false,
+        connector,
+      },
+    }),
+  });
+  const {disconnect} = useDisconnect();
+  const {data: signer} = useSigner();
 
-  const connectWallet = React.useCallback(async () => {
-    const provider = new WalletConnectProvider({
-      infuraId: INFURA_API_KEY,
-      connector: connector,
-      qrcode: false,
-    });
-    // await connector.connect();
-    // await provider.enable();
-    const ethersProvider = new ethers.providers.Web3Provider(provider);
-    const newSigner = ethersProvider.getSigner() as Signer;
-    const newAddress = await newSigner.getAddress();
-    console.log('SUCCESS! authenticated: ' + newAddress);
-    setAddress(newAddress);
-    setSigner(newSigner);
+  const connectWallet = useCallback(() => {
+    try {
+      connector?.connect();
+    } catch (e) {
+      console.info(e);
+    }
   }, [connector]);
 
-  // const disconnectWallet = React.useCallback(async () => {
-  //   await connector.killSession();
-  // }, [connector]);
+  useEffect(() => {
+    if (connector?.accounts?.length && !signer) {
+      connect();
+    } else {
+      disconnect();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connector]);
 
   const sendGm = React.useCallback(async () => {
     if (!client) {
@@ -72,6 +80,10 @@ const Home = () => {
         return;
       }
 
+      const newAddress = await signer.getAddress();
+      console.log('new address: ' + newAddress);
+      setAddress(newAddress);
+
       if (!client) {
         /**
          * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
@@ -80,7 +92,9 @@ const Home = () => {
          * import {Wallet} from ethers;
          * await Client.create(new Wallet(utils.randomPrivateKey()));
          */
+        console.log('signer: ' + signer);
         const xmtp = await Client.create(signer);
+        console.log('created xmtp: ' + xmtp.address);
         setClient(xmtp);
       }
     };
@@ -101,6 +115,8 @@ const Home = () => {
   //   return <Error message="Invalid signer" />;
   // }
 
+  console.log(client);
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -115,8 +131,8 @@ const Home = () => {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text>{signer ? address : 'Sign in with XMTP'}</Text>
-          {signer ? (
+          <Text>{client ? address : 'Sign in with XMTP'}</Text>
+          {client ? (
             <Button title="Send a gm" onPress={sendGm} />
           ) : (
             <Button title="Sign in" onPress={connectWallet} />
