@@ -13,11 +13,11 @@ export default function useRegister(
         return;
       }
       if (!installationId || !deviceToken) {
-        console.log(
-          'Missing required values to register',
-          installationId,
-          deviceToken,
-        );
+        // console.log(
+        //   'Missing required values to register',
+        //   installationId,
+        //   deviceToken,
+        // );
         return;
       }
       try {

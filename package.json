@@ -15,6 +15,7 @@
     "@bufbuild/connect-web": "^0.3.2",
     "@bufbuild/protobuf": "^0.3.0",
     "@ethersproject/shims": "^5.7.0",
+    "@notifee/react-native": "^7.1.0",
     "@peculiar/webcrypto": "^1.4.0",
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@react-native-firebase/app": "^16.4.6",

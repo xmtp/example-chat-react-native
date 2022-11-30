@@ -22,7 +22,8 @@ import useRegister from '../hooks/useRegister';
 import useGetDeviceIdentifier from '../hooks/useGetDeviceIdentifier';
 import useSubscribe from '../hooks/useSubscribe';
 import useRequestMessagingPermission from '../hooks/useRequestMessagingPermission';
-import { setClient as setNotificationsClient } from '../lib/notifications';
+import { loadKeys, setKeys } from '../lib/keys';
+import { XMTP_ENV } from '../constants';
 
 // Naive implementation of building the topic list
 // Does not include intro or invite topics
@@ -50,13 +51,6 @@ const Home = () => {
     deviceToken,
   );
   const { loading: subscribeLoading, isSubscribed } = useSubscribe(topics);
-  console.log(
-    `Register loading: ${registerLoading}. isRegistered: ${isRegistered}`,
-  );
-
-  console.log(
-    `Subscribe loading: ${subscribeLoading}. isSubscribed: ${isSubscribed}. Topics: ${topics}`,
-  );
 
   const connectWallet = React.useCallback(async () => {
     const provider = new WalletConnectProvider({
@@ -102,7 +96,12 @@ const Home = () => {
       }
 
       if (!client) {
-        console.log('Creating client', Client);
+        const address = await signer.getAddress();
+        let keys = await loadKeys(address, XMTP_ENV);
+        if (!keys) {
+          keys = await Client.getKeys(signer, { env: XMTP_ENV });
+          await setKeys(address, XMTP_ENV, keys);
+        }
         /**
          * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
          * If you would like to quickly create a random Wallet for testing, use:
@@ -110,9 +109,11 @@ const Home = () => {
          * import {Wallet} from ethers;
          * await Client.create(new Wallet(utils.randomPrivateKey()));
          */
-        const xmtp = await Client.create(signer);
+        const xmtp = await Client.create(null, {
+          privateKeyOverride: keys,
+          env: XMTP_ENV,
+        });
         setClient(xmtp);
-        setNotificationsClient(xmtp);
         setTopics(await getTopics(xmtp));
       }
     };
