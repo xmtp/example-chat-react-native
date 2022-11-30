@@ -15,19 +15,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const prefix = Linking.createURL('/');
 
-export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
+const APP_SCHEME = 'examplexmtp://';
 
 const App = () => {
   const linking = {
     prefixes: [prefix],
   };
 
-  const APP_SCHEME = 'examplexmtp://';
-
   return (
     <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
       <WalletConnectProvider
         redirectUrl={APP_SCHEME}
+        bridge="https://bridge.walletconnect.org"
+        clientMeta={{
+          description: 'Sign in with XMTP',
+          url: 'https://walletconnect.org',
+          icons: ['https://walletconnect.org/walletconnect-logo.png'],
+          name: 'XMTP',
+        }}
         storageOptions={{
           // @ts-expect-error: Internal
           asyncStorage: AsyncStorage,

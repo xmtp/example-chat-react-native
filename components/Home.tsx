@@ -17,7 +17,8 @@ import {Client} from '@xmtp/xmtp-js';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import {INFURA_API_KEY} from '../App';
+
+export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
 const Home = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -38,33 +39,30 @@ const Home = () => {
       qrcode: false,
     });
     await connector.connect();
-    await provider.enable();
+    // await provider.enable();
     const ethersProvider = new ethers.providers.Web3Provider(provider);
     const newSigner = ethersProvider.getSigner() as Signer;
     const newAddress = await newSigner.getAddress();
+    console.log('SUCCESS! authenticated: ' + newAddress);
     setAddress(newAddress);
     setSigner(newSigner);
   }, [connector]);
 
-  const disconnectWallet = React.useCallback(async () => {
-    await connector.killSession();
-  }, [connector]);
+  // const disconnectWallet = React.useCallback(async () => {
+  //   await connector.killSession();
+  // }, [connector]);
 
   const sendGm = React.useCallback(async () => {
     if (!client) {
       return;
     }
-    try {
-      const conversation = await client.conversations.newConversation(
-        '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA',
-      );
-      const message = await conversation.send(
-        `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-      );
-      console.log('sent message: ' + message.content);
-    } catch (error) {
-      console.log(`error creating client: ${error}`);
-    }
+    const conversation = await client.conversations.newConversation(
+      '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA',
+    );
+    const message = await conversation.send(
+      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
+    );
+    console.log('sent message: ' + message.content);
   }, [client]);
 
   // Initialize XMTP client
@@ -117,7 +115,7 @@ const Home = () => {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text>{address ?? 'Sign in with XMTP'}</Text>
+          <Text>{signer ? address : 'Sign in with XMTP'}</Text>
           {signer ? (
             <Button title="Send a gm" onPress={sendGm} />
           ) : (
