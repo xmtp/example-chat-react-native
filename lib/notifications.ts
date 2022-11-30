@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { XMTP_ENV } from '../constants';
 import notifee from '@notifee/react-native';
 
-async function getClient(): Promise<Client | null> {
+const getClient = async (): Promise<Client | null> => {
   const keyPointer = await getKeyPointer();
   if (!keyPointer) {
     return null;
@@ -19,13 +19,13 @@ async function getClient(): Promise<Client | null> {
   }
 
   return Client.create(null, { privateKeyOverride: keys, env: XMTP_ENV });
-}
+};
 
-async function decryptMessage(
+const decryptMessage = async (
   xmtp: Client,
   topic: string,
   message: string,
-): Promise<DecodedMessage | null> {
+): Promise<DecodedMessage | null> => {
   const conversations = await xmtp.conversations.list();
   //   const messageBytes = Uint8Array.from(Buffer.from(message, 'base64'));
 
@@ -38,7 +38,7 @@ async function decryptMessage(
     }
   }
   return null;
-}
+};
 
 const postLocalNotification = async (title: string, body: string) => {
   // Request permissions (required for iOS)
@@ -97,7 +97,7 @@ const handleMessage = async (msg: FirebaseMessagingTypes.RemoteMessage) => {
   }
 };
 
-export function setup() {
+export const setup = () => {
   notifee.onBackgroundEvent(async (ev) => {
     console.log('Background event fired', ev);
   });
@@ -105,4 +105,4 @@ export function setup() {
     console.log('Got a message while in the foreground');
   });
   messaging().setBackgroundMessageHandler(handleMessage);
-}
+};
