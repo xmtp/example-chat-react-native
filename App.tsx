@@ -37,10 +37,6 @@ const App = () => {
    * https://wagmi.sh/docs/getting-started
    * https://github.com/wagmi-dev/wagmi/discussions/533
    */
-  // const {provider, webSocketProvider} = configureChains(
-  //   [chain.mainnet, chain.polygon],
-  //   [infuraProvider({infuraId: INFURA_API_KEY})],
-  // );
   const {provider, webSocketProvider} = configureChains(
     [chain.mainnet, chain.polygon],
     [publicProvider()],
