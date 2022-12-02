@@ -9,28 +9,22 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
 } from 'react-native';
 
 import {ethers, Signer} from 'ethers';
 import {Client} from '@xmtp/xmtp-js';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
-export const RECIPIENT_ADDRESS = '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA'; // 'REPLACE_WITH_ETH_ADDRESS';
+
+export const RECIPIENT_ADDRESS = 'REPLACE_WITH_ETH_ADDRESS';
 
 const Home = () => {
-  const isDarkMode = useColorScheme() === 'dark';
   const [client, setClient] = useState<Client | undefined>(undefined);
   const [signer, setSigner] = useState<Signer | undefined>(undefined);
   const [address, setAddress] = useState<string>('');
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   const connector = useWalletConnect();
 
@@ -105,20 +99,14 @@ const Home = () => {
   }, [signer]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
+    <SafeAreaView>
+      <StatusBar />
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text>{client ? address : 'Sign in with XMTP'}</Text>
+          <Text style={styles.sectionDescription}>
+            {client ? address : 'Sign in with XMTP'}
+          </Text>
           {client ? (
             <Button title="Send a gm" onPress={sendGm} />
           ) : (
@@ -141,11 +129,9 @@ const styles = StyleSheet.create({
   },
   sectionDescription: {
     marginTop: 8,
-    fontSize: 18,
+    marginBottom: 16,
+    fontSize: 16,
     fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
   },
 });
 
