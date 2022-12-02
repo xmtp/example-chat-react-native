@@ -13,11 +13,11 @@ import {
   View,
 } from 'react-native';
 
+import {ethers, Signer} from 'ethers';
 import {Client} from '@xmtp/xmtp-js';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
-import {useConnect, useDisconnect, useSigner} from 'wagmi';
-import {WalletConnectConnector} from 'wagmi/connectors/walletConnect';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 export const RECIPIENT_ADDRESS = '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA'; // 'REPLACE_WITH_ETH_ADDRESS';
@@ -25,44 +25,46 @@ export const RECIPIENT_ADDRESS = '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA'; /
 const Home = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [client, setClient] = useState<Client | undefined>(undefined);
+  const [signer, setSigner] = useState<Signer | undefined>(undefined);
   const [address, setAddress] = useState<string>('');
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const wcConnector = useWalletConnect();
-  const {connect: connectWagmi} = useConnect({
-    connector: new WalletConnectConnector({
-      options: {
-        qrcode: false,
-        connector: wcConnector,
-      },
-    }),
+  const connector = useWalletConnect();
+
+  const provider = new WalletConnectProvider({
+    infuraId: INFURA_API_KEY,
+    connector: connector,
   });
-  const {disconnect} = useDisconnect();
-  const {data: signer} = useSigner();
 
   useEffect(() => {
-    if (wcConnector?.connected && !signer) {
-      try {
-        connectWagmi();
-      } catch (e) {
-        console.log(e);
-      }
+    if (connector?.connected && !signer) {
+      const requestSignatures = async () => {
+        await provider.enable();
+        const ethersProvider = new ethers.providers.Web3Provider(provider);
+        const newSigner = ethersProvider.getSigner();
+        const newAddress = await newSigner.getAddress();
+        setAddress(newAddress);
+        setSigner(newSigner);
+      };
+      requestSignatures();
     } else {
+      if (!connector?.connected) {
+        return;
+      }
+      const disconnect = async () => {
+        await connector?.killSession();
+      };
       disconnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wcConnector]);
+  }, [connector]);
 
   const connectWallet = useCallback(async () => {
-    try {
-      await wcConnector?.connect();
-    } catch (e) {
-      console.log(e);
-    }
-  }, [wcConnector]);
+    await connector?.connect();
+  }, [connector]);
 
   const sendGm = React.useCallback(async () => {
     if (!client) {
@@ -77,7 +79,6 @@ const Home = () => {
     Alert.alert('Message sent', message.content);
   }, [client]);
 
-  // Initialize XMTP client
   useEffect(() => {
     const initXmtpClient = async () => {
       if (!signer) {
