@@ -11,6 +11,7 @@ This code should only be **used experimentally** as we work to remove our depend
 1. Follow the [React Native guide](https://reactnative.dev/docs/environment-setup) to set up CLI environment
 1. Clone this repo and `cd example_chat_rn`
 1. Set the `RECIPIENT_ADDRESS` in [Home.tsx](https://github.com/xmtp/example-chat-react-native/blob/main/components/Home.tsx) to an address already authenticated with XMTP. If you do not have one, sign in on the `dev` network [here](https://xmtp.vercel.app/).
+1. Run `npx pod-install` to install iOS dependencies
 1. Run `npx react-native start` to start Metro
 1. Run `npx react-native run-ios` or `npx react-native run-android` to run the app
 
