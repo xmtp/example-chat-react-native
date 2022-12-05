@@ -1,97 +1,58 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
+ * Example React Native App using XMTP.
  */
+import React, {memo} from 'react';
 
-import React from 'react';
-import {
-  Button,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
+// Polyfill necessary xmtp-js libraries for React Native.
 import './polyfills.js';
-import {Wallet} from 'ethers';
-import {utils as SecpUtils} from '@noble/secp256k1';
-import {Client} from '@xmtp/xmtp-js';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import Home from './components/Home';
+import * as Linking from 'expo-linking';
+import {Text} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import WalletConnectProvider, {
+  QrcodeModal,
+  RenderQrcodeModalProps,
+} from '@walletconnect/react-native-dapp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const APP_SCHEME = 'examplexmtp';
+
+const prefix = Linking.createURL('/', {scheme: APP_SCHEME});
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const linking = {
+    prefixes: [prefix],
   };
 
-  const account = new Wallet(SecpUtils.randomPrivateKey());
+  const QRCodeComponent = (props: RenderQrcodeModalProps) => {
+    if (!props.visible) {
+      return null;
+    }
+    return <QrcodeModal division={4} {...props} />;
+  };
+  const QRCodeModal = memo(QRCodeComponent);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text>{account.address}</Text>
-          <Button title="Send a gm" onPress={() => sendGm(account)} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+      <WalletConnectProvider
+        redirectUrl={`${APP_SCHEME}://`}
+        bridge="https://bridge.walletconnect.org"
+        renderQrcodeModal={props => <QRCodeModal {...props} />}
+        clientMeta={{
+          description: 'Sign in with XMTP',
+          url: 'https://xmtp.org',
+          icons: ['https://avatars.githubusercontent.com/u/82580170'],
+          name: 'XMTP',
+        }}
+        storageOptions={{
+          // @ts-expect-error: Internal
+          asyncStorage: AsyncStorage,
+        }}>
+        <Home />
+      </WalletConnectProvider>
+    </NavigationContainer>
   );
 };
-
-async function sendGm(account: Wallet) {
-  console.log('creating xmtp client');
-  try {
-    const xmtp = await Client.create(account);
-    const conversation = await xmtp.conversations.newConversation(
-      'ENTER RECEIVING ACCOUNT ADDRESS HERE',
-    );
-    const message = await conversation.send(
-      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-    );
-    console.log('sent message: ' + message.content);
-  } catch (error) {
-    console.log(`error creating client: ${error}`);
-  }
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;

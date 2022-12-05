@@ -1,0 +1,21 @@
+diff --git a/node_modules/@walletconnect/react-native-dapp/dist/providers/WalletConnectProvider.js b/node_modules/@walletconnect/react-native-dapp/dist/providers/WalletConnectProvider.js
+index 9b5b1e2..c2586fb 100644
+--- a/node_modules/@walletconnect/react-native-dapp/dist/providers/WalletConnectProvider.js
++++ b/node_modules/@walletconnect/react-native-dapp/dist/providers/WalletConnectProvider.js
+@@ -21,11 +21,11 @@ export default function WalletConnectProvider({ children, renderQrcodeModal: may
+         : defaultRenderQrcodeModal), [maybeRenderQrcodeModal]);
+     const open = React.useCallback(async (uri, cb) => {
+         if (Platform.OS === 'android') {
+-            const canOpenURL = await Linking.canOpenURL(uri);
+-            if (!canOpenURL) {
+-                Linking.openURL('https://walletconnect.org/wallets');
+-                throw new Error('No wallets found.');
+-            }
++            // const canOpenURL = await Linking.canOpenURL(uri);
++            // if (!canOpenURL) {
++            //     Linking.openURL('https://walletconnect.org/wallets');
++            //     throw new Error('No wallets found.');
++            // }
+             await Linking.openURL(uri);
+         }
+         setState({

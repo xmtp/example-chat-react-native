@@ -1,4 +1,7 @@
 {
   "name": "example_chat_rn",
-  "displayName": "example_chat_rn"
+  "displayName": "example_chat_rn",
+  "expo": {
+    "scheme": "examplexmtp"
+  }
 }
