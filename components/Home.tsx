@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import { ethers, Signer } from 'ethers';
-import { Client } from '@xmtp/xmtp-js';
+import { Client, Conversation } from '@xmtp/xmtp-js';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useWalletConnect } from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -24,14 +24,13 @@ import useSubscribe from '../hooks/useSubscribe';
 import useRequestMessagingPermission from '../hooks/useRequestMessagingPermission';
 import { loadKeys, setKeys } from '../lib/keys';
 import { XMTP_ENV } from '../constants';
+import { cacheClient, cacheConversations } from '../lib/notifications';
 
 // Naive implementation of building the topic list
 // Does not include intro or invite topics
-const getTopics = async (client: Client): Promise<string[]> => {
-  const convos = await client.conversations.list();
+const getTopics = (convos: Conversation[]): string[] => {
   return convos.map((convo) => convo.topic);
 };
-
 const Home = () => {
   const isDarkMode = useColorScheme() === 'dark';
   const [client, setClient] = useState<Client | undefined>(undefined);
@@ -50,7 +49,7 @@ const Home = () => {
     installationId,
     deviceToken,
   );
-  const { loading: subscribeLoading, isSubscribed } = useSubscribe(topics);
+  const { loading: subscribeLoading, isSubscribed } = useSubscribe(client);
 
   const connectWallet = React.useCallback(async () => {
     const provider = new WalletConnectProvider({
@@ -113,8 +112,8 @@ const Home = () => {
           privateKeyOverride: keys,
           env: XMTP_ENV,
         });
+        cacheClient(xmtp);
         setClient(xmtp);
-        setTopics(await getTopics(xmtp));
       }
     };
     initXmtpClient();

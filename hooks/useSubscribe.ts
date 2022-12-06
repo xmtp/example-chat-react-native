@@ -1,14 +1,15 @@
+import { Client } from '@xmtp/xmtp-js';
 import { useEffect, useState } from 'react';
 import client from '../lib/client';
+import { updateSubscriptions } from '../lib/notifications';
 import useGetDeviceIdentifier from './useGetDeviceIdentifier';
 
-export default function useSubscribe(topics: string[] | null) {
-  const { installationId } = useGetDeviceIdentifier();
+export default function useSubscribe(client: Client | undefined) {
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!topics || !topics.length || !installationId) {
+    if (!client) {
       console.log('No topics');
       return;
     }
@@ -19,13 +20,7 @@ export default function useSubscribe(topics: string[] | null) {
       }
       try {
         setLoading(true);
-        await client.subscribe(
-          {
-            installationId,
-            topics,
-          },
-          {},
-        );
+        await updateSubscriptions();
         setIsSubscribed(true);
       } catch (e) {
         console.error(e);
@@ -35,7 +30,7 @@ export default function useSubscribe(topics: string[] | null) {
     };
 
     subscribe();
-  }, [topics, installationId]);
+  }, [client]);
 
   return {
     loading,

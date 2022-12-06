@@ -1,43 +1,90 @@
-import { Notifications } from './../gen/service_connectweb';
+import installations from '@react-native-firebase/installations';
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
-import { Client, DecodedMessage } from '@xmtp/xmtp-js';
+import { Client, Conversation, DecodedMessage } from '@xmtp/xmtp-js';
 import { decodeKeys, getKeyPointer } from './keys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { XMTP_ENV } from '../constants';
+import subscriptionClient from './client';
 import notifee from '@notifee/react-native';
+import {
+  buildUserIntroTopic,
+  buildUserInviteTopic,
+  //@ts-ignore
+} from '@xmtp/xmtp-js/dist/cjs/src/utils';
 
-const getClient = async (): Promise<Client | null> => {
+const conversationMap = new Map<string, Conversation>();
+let client: Client;
+
+export const cacheConversations = (convos: Conversation[]) => {
+  for (const convo of convos) {
+    conversationMap.set(convo.topic, convo);
+  }
+};
+
+export const cacheClient = (newClient: Client) => {
+  client = newClient;
+};
+
+const getClient = async (): Promise<Client> => {
+  if (client) {
+    return client;
+  }
   const keyPointer = await getKeyPointer();
   if (!keyPointer) {
-    return null;
-  }
-  const keys = decodeKeys(await AsyncStorage.getItem(keyPointer));
-  if (!keys) {
-    return null;
+    throw new Error('No client found');
   }
 
-  return Client.create(null, { privateKeyOverride: keys, env: XMTP_ENV });
+  const keys = decodeKeys(await AsyncStorage.getItem(keyPointer));
+  if (!keys) {
+    throw new Error('No keys found for client');
+  }
+
+  client = await Client.create(null, {
+    privateKeyOverride: keys,
+    env: XMTP_ENV,
+  });
+  return client;
+};
+
+export const updateSubscriptions = async () => {
+  const xmtp = await getClient();
+  const conversations = await xmtp.conversations.list();
+  cacheConversations(conversations);
+  const installationId = await installations().getId();
+  const convoTopics = conversations.map((convo) => convo.topic);
+  const topics = [
+    ...convoTopics,
+    buildUserIntroTopic(xmtp.address),
+    buildUserInviteTopic(xmtp.address),
+  ];
+  console.log('Subscribing to topics', topics, installationId);
+  await subscriptionClient.subscribe(
+    {
+      installationId,
+      topics,
+    },
+    {},
+  );
 };
 
 const decryptMessage = async (
-  xmtp: Client,
   topic: string,
   message: string,
 ): Promise<DecodedMessage | null> => {
-  const conversations = await xmtp.conversations.list();
-  //   const messageBytes = Uint8Array.from(Buffer.from(message, 'base64'));
-
-  for (const conversation of conversations) {
-    if (conversation.topic === topic) {
-      return conversation.decodeMessage({
-        contentTopic: topic,
-        message: message as unknown as any,
-      });
+  let convo = conversationMap.get(topic);
+  if (!convo) {
+    await updateSubscriptions();
+    convo = conversationMap.get(topic);
+    if (!convo) {
+      throw new Error('No conversation found');
     }
   }
-  return null;
+  return convo.decodeMessage({
+    contentTopic: topic,
+    message: message as unknown as any,
+  });
 };
 
 const postLocalNotification = async (title: string, body: string) => {
@@ -67,21 +114,25 @@ const postLocalNotification = async (title: string, body: string) => {
   });
 };
 
+const isIntroTopic = (topic: string) => topic.startsWith('/xmtp/0/intro-');
+
+const isInviteTopic = (topic: string) => topic.startsWith('/xmtp/0/invite-');
+
+const isConversationUpdate = (topic: string) =>
+  !!topic && (isIntroTopic(topic) || isInviteTopic(topic));
+
 const handleMessage = async (msg: FirebaseMessagingTypes.RemoteMessage) => {
-  const client = await getClient();
-  if (!client) {
-    console.log('Could not get client');
-    return null;
-  }
   console.log('Got a message', msg);
   const data = msg.data;
   if (data?.topic && data?.encryptedMessage) {
     try {
-      const decoded = await decryptMessage(
-        client,
-        data.topic,
-        data.encryptedMessage,
-      );
+      if (isConversationUpdate(data.topic)) {
+        await updateSubscriptions();
+        if (isInviteTopic(data.topic)) {
+          return;
+        }
+      }
+      const decoded = await decryptMessage(data.topic, data.encryptedMessage);
       if (!decoded) {
         console.log('Could not decode message');
         return null;
