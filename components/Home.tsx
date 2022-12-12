@@ -13,21 +13,22 @@ import {
 } from 'react-native';
 
 import {ethers, Signer} from 'ethers';
-import {Client} from '@xmtp/xmtp-js';
+import {Client, Conversation, DecodedMessage, Stream} from '@xmtp/xmtp-js';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
-export const RECIPIENT_ADDRESS = 'REPLACE_WITH_ETH_ADDRESS';
+export const RECIPIENT_ADDRESS = '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA';
 
 const Home = () => {
-  const [client, setClient] = useState<Client | undefined>(undefined);
-  const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  const [client, setClient] = useState<Client>();
+  const [signer, setSigner] = useState<Signer>();
   const [address, setAddress] = useState<string>('');
+  const [conversation, setConversation] = useState<Conversation>();
+  const [stream, setStream] = useState<Stream<DecodedMessage>>();
 
   const connector = useWalletConnect();
-
   const provider = new WalletConnectProvider({
     infuraId: INFURA_API_KEY,
     connector: connector,
@@ -56,23 +57,6 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connector]);
 
-  const connectWallet = useCallback(async () => {
-    await connector?.connect();
-  }, [connector]);
-
-  const sendGm = React.useCallback(async () => {
-    if (!client) {
-      return;
-    }
-    const conversation = await client.conversations.newConversation(
-      RECIPIENT_ADDRESS,
-    );
-    const message = await conversation.send(
-      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-    );
-    Alert.alert('Message sent', message.content);
-  }, [client]);
-
   useEffect(() => {
     const initXmtpClient = async () => {
       if (!signer) {
@@ -98,13 +82,76 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
 
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+    const startConversation = async () => {
+      console.log('start conversation');
+      const newConversation = await client.conversations.newConversation(
+        RECIPIENT_ADDRESS,
+      );
+      console.log('hi conversation: ' + newConversation);
+      setConversation(newConversation);
+    };
+    startConversation();
+  }, [client]);
+
+  useEffect(() => {
+    if (!conversation) {
+      return;
+    }
+    const closeStream = async () => {
+      if (!stream) {
+        return;
+      }
+      await stream.return();
+    };
+    const streamMessages = async () => {
+      closeStream();
+
+      console.log('new convo');
+      for await (const page of conversation.messagesPaginated({pageSize: 25})) {
+        for (const msg of page) {
+          console.log(msg.content);
+        }
+      }
+
+      // const newStream = await conversation.streamMessages();
+      // setStream(newStream);
+      // console.log('starting stream');
+      // for await (const message of newStream) {
+      //   Alert.alert('Message received', message.content);
+      // }
+    };
+    streamMessages();
+    return () => {
+      closeStream();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation]);
+
+  const connectWallet = useCallback(async () => {
+    await connector?.connect();
+  }, [connector]);
+
+  const sendGm = React.useCallback(async () => {
+    if (!conversation) {
+      return;
+    }
+    const message = await conversation.send(
+      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
+    );
+    Alert.alert('Message sent', message.content);
+  }, [conversation]);
+
   return (
     <SafeAreaView>
       <StatusBar />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text style={styles.sectionDescription}>
+          <Text style={styles.sectionDescription} selectable={true}>
             {client ? address : 'Sign in with XMTP'}
           </Text>
           {client ? (
