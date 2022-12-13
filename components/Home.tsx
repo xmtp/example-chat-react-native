@@ -16,6 +16,8 @@ import {ethers, Signer} from 'ethers';
 import {Client, Conversation, DecodedMessage, Stream} from '@xmtp/xmtp-js';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
+import {utils} from '@noble/secp256k1';
+import {Wallet} from 'ethers';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
@@ -26,105 +28,100 @@ const Home = () => {
   const [signer, setSigner] = useState<Signer>();
   const [address, setAddress] = useState<string>('');
   const [conversation, setConversation] = useState<Conversation>();
-  const [stream, setStream] = useState<Stream<DecodedMessage>>();
+  // const [stream, setStream] = useState<Stream<DecodedMessage>>();
 
-  const connector = useWalletConnect();
-  const provider = new WalletConnectProvider({
-    infuraId: INFURA_API_KEY,
-    connector: connector,
-  });
+  // const connector = useWalletConnect();
+  // const provider = new WalletConnectProvider({
+  //   infuraId: INFURA_API_KEY,
+  //   connector: connector,
+  // });
 
-  useEffect(() => {
-    if (connector?.connected && !signer) {
-      const requestSignatures = async () => {
-        await provider.enable();
-        const ethersProvider = new ethers.providers.Web3Provider(provider);
-        const newSigner = ethersProvider.getSigner();
-        const newAddress = await newSigner.getAddress();
-        setAddress(newAddress);
-        setSigner(newSigner);
-      };
-      requestSignatures();
-    } else {
-      if (!connector?.connected) {
-        return;
-      }
-      const disconnect = async () => {
-        await connector?.killSession();
-      };
-      disconnect();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connector]);
+  // useEffect(() => {
+  //   if (connector?.connected && !signer) {
+  //     const requestSignatures = async () => {
+  //       await provider.enable();
+  //       const ethersProvider = new ethers.providers.Web3Provider(provider);
+  //       const newSigner = ethersProvider.getSigner();
+  //       const newAddress = await newSigner.getAddress();
+  //       setAddress(newAddress);
+  //       setSigner(newSigner);
+  //     };
+  //     requestSignatures();
+  //   } else {
+  //     if (!connector?.connected) {
+  //       return;
+  //     }
+  //     const disconnect = async () => {
+  //       await connector?.killSession();
+  //     };
+  //     disconnect();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [connector]);
 
+  /**
+   * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
+   * If you would like to quickly create a random Wallet for testing, use:
+   * import {utils} from '@noble/secp256k1';
+   * import {Wallet} from 'ethers';
+   * await Client.create(new Wallet(utils.randomPrivateKey()));
+   */
   useEffect(() => {
     const initXmtpClient = async () => {
-      if (!signer) {
+      if (client || signer || conversation) {
         return;
       }
 
-      const newAddress = await signer.getAddress();
+      const newSigner = new Wallet(utils.randomPrivateKey());
+      const newAddress = await newSigner.getAddress();
       setAddress(newAddress);
-
-      if (!client) {
-        /**
-         * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
-         * If you would like to quickly create a random Wallet for testing, use:
-         * import {utils} from @noble/secp256k1;
-         * import {Wallet} from ethers;
-         * await Client.create(new Wallet(utils.randomPrivateKey()));
-         */
-        const xmtp = await Client.create(signer);
-        setClient(xmtp);
-      }
+      setSigner(newSigner);
+      const xmtp = await Client.create(newSigner);
+      setClient(xmtp);
+      const newConversation = await xmtp.conversations.newConversation(
+        RECIPIENT_ADDRESS,
+      );
+      setConversation(newConversation);
     };
     initXmtpClient();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signer]);
+  }, []);
+
+  // useEffect(() => {
+  //   if (!client) {
+  //     return;
+  //   }
+  //   const startConversation = async () => {
+  //     console.log('start conversation');
+  //     const newConversation = await client.conversations.newConversation(
+  //       RECIPIENT_ADDRESS,
+  //     );
+  //     console.log('hi conversation: ' + newConversation);
+  //     setConversation(newConversation);
+  //   };
+  //   startConversation();
+  // }, [client]);
 
   useEffect(() => {
-    if (!client) {
+    if (!client || !conversation) {
       return;
     }
-    const startConversation = async () => {
-      console.log('start conversation');
-      const newConversation = await client.conversations.newConversation(
-        RECIPIENT_ADDRESS,
-      );
-      console.log('hi conversation: ' + newConversation);
-      setConversation(newConversation);
-    };
-    startConversation();
-  }, [client]);
-
-  useEffect(() => {
-    if (!conversation) {
-      return;
-    }
+    let messageStream: Stream<DecodedMessage>;
     const closeStream = async () => {
-      if (!stream) {
+      if (!messageStream) {
         return;
       }
-      await stream.return();
+      await messageStream.return();
     };
-    const streamMessages = async () => {
+    const startMessageStream = async () => {
       closeStream();
-
-      console.log('new convo');
-      for await (const page of conversation.messagesPaginated({pageSize: 25})) {
-        for (const msg of page) {
-          console.log(msg.content);
-        }
+      messageStream = await conversation.streamMessages();
+      console.log('starting stream!');
+      for await (const message of messageStream) {
+        console.log('new message! ' + message.content);
       }
-
-      // const newStream = await conversation.streamMessages();
-      // setStream(newStream);
-      // console.log('starting stream');
-      // for await (const message of newStream) {
-      //   Alert.alert('Message received', message.content);
-      // }
     };
-    streamMessages();
+    startMessageStream();
     return () => {
       closeStream();
     };
@@ -132,8 +129,8 @@ const Home = () => {
   }, [conversation]);
 
   const connectWallet = useCallback(async () => {
-    await connector?.connect();
-  }, [connector]);
+    // await connector?.connect();
+  }, []);
 
   const sendGm = React.useCallback(async () => {
     if (!conversation) {
