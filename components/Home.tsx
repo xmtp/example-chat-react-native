@@ -32,13 +32,13 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const connector = useWalletConnect();
+  const provider = new WalletConnectProvider({
+    infuraId: INFURA_API_KEY,
+    connector: connector,
+  });
 
   useEffect(() => {
     if (connector?.connected && !signer) {
-      const provider = new WalletConnectProvider({
-        infuraId: INFURA_API_KEY,
-        connector: connector,
-      });
       const requestSignatures = async () => {
         await provider.enable();
         const ethersProvider = new ethers.providers.Web3Provider(provider);
@@ -111,7 +111,7 @@ const Home = () => {
   const connectWallet = useCallback(async () => {
     setIsLoading(true);
     await connector?.connect();
-  }, []);
+  }, [connector]);
 
   const generateWallet = useCallback(async () => {
     setIsLoading(true);
