@@ -116,9 +116,10 @@ const Home = () => {
     const startMessageStream = async () => {
       closeStream();
       messageStream = await conversation.streamMessages();
-      console.log('starting stream!');
+      // const next = await messageStream.next();
+      // console.log('next message! ' + next.value.content);
       for await (const message of messageStream) {
-        console.log('new message! ' + message.content);
+        Alert.alert('Message received', message.content);
       }
     };
     startMessageStream();

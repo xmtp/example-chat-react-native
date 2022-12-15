@@ -6,4 +6,5 @@ module.exports = {
       {unstable_transformProfile: 'hermes-stable'},
     ],
   ],
+  plugins: ['@babel/plugin-proposal-async-generator-functions'],
 };

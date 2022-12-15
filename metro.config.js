@@ -16,10 +16,11 @@ module.exports = {
   },
   resolver: {
     extraNodeModules: {
-      stream: require.resolve('stream-browserify'),
+      stream: require.resolve('readable-stream'),
       crypto: require.resolve('crypto-browserify'),
-      http: require.resolve('stream-http'),
-      https: require.resolve('https-browserify'),
+      // buffer: require.resolve('buffer/'),
+      // http: require.resolve('stream-http'),
+      // https: require.resolve('https-browserify'),
     },
   },
 };
