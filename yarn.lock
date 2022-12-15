@@ -3032,12 +3032,15 @@
     protobufjs "^7.0.0"
     undici "^5.8.1"
 
-"@xmtp/xmtp-js@file:../xmtp-js":
-  version "0.0.0-development"
+"@xmtp/xmtp-js@^7.6.0":
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/@xmtp/xmtp-js/-/xmtp-js-7.6.0.tgz#9464859e695de94d7411da3d77a0ec5da71f1a3c"
+  integrity sha512-NufhXmPPXScu4R4PBnA9jeBMqrKb/gpXDG2Nfn/QpxO4UzXF2npvevZ1W4mFqjGiqcv/cfzxi/Z7+Tmo+CLnvQ==
   dependencies:
     "@noble/secp256k1" "^1.5.2"
     "@stardazed/streams-polyfill" "^2.4.0"
     "@xmtp/proto" "^3.9.0"
+    async-mutex "^0.4.0"
     ethers "^5.5.3"
     long "^5.2.0"
 
@@ -3404,6 +3407,13 @@ async-mutex@^0.2.6:
   integrity sha512-Hs4R+4SPgamu6rSGW8C7cV9gaWUKEHykfzCCvIRuaVv636Ju10ZdeUbvb4TBEW0INuq2DHZqXbK4Nd3yG4RaRw==
   dependencies:
     tslib "^2.0.0"
+
+async-mutex@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/async-mutex/-/async-mutex-0.4.0.tgz#ae8048cd4d04ace94347507504b3cf15e631c25f"
+  integrity sha512-eJFZ1YhRR8UN8eBLoNzcDPcy/jqjsg6I1AP+KvWQX80BqOSW1oJPJXDylPUEeMr2ZQvHgnQ//Lp6f3RQ1zI7HA==
+  dependencies:
+    tslib "^2.4.0"
 
 async@^1.4.2:
   version "1.5.2"

@@ -18,9 +18,8 @@ module.exports = {
     extraNodeModules: {
       stream: require.resolve('readable-stream'),
       crypto: require.resolve('crypto-browserify'),
-      // buffer: require.resolve('buffer/'),
-      // http: require.resolve('stream-http'),
-      // https: require.resolve('https-browserify'),
+      http: require.resolve('stream-http'),
+      https: require.resolve('https-browserify'),
     },
   },
 };
