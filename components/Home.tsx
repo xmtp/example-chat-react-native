@@ -22,7 +22,7 @@ import {Wallet} from 'ethers';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
-export const RECIPIENT_ADDRESS = '0x08c0A8f0e49aa245b81b9Fde0be0cD222766DECA';
+export const RECIPIENT_ADDRESS = 'REPLACE_WITH_ETH_ADDRESS';
 
 const Home = () => {
   const [client, setClient] = useState<Client>();
