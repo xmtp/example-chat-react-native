@@ -1,4 +1,3 @@
-
 # XMTP React Native Example
 
 ![Status](https://img.shields.io/badge/Project_Status-Developer_Preview-red)
