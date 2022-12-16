@@ -6,7 +6,7 @@ This is a work in progress to demonstrate importing [xmtp-js](https://github.com
 This code should only be **used experimentally** as we work to remove our dependency on [PeculiarVentures/webcrypto](https://github.com/PeculiarVentures/webcrypto) (a SubtleCrypto polyfill) as the library includes the following warning.
 >At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.
 
-## Usage
+## Setup
 
 1. Follow the [React Native guide](https://reactnative.dev/docs/environment-setup) to set up CLI environment
 1. Clone this repo and `cd example_chat_rn`
@@ -34,14 +34,16 @@ This code should only be **used experimentally** as we work to remove our depend
 - @azure/core-asynciterator-polyfill (necessary for Hermes only)
 - @ethersproject/shims
 - react-native-get-random-values
+- [react-native-polyfill-globals](https://github.com/acostalima/react-native-polyfill-globals)
 - crypto-browserify
 - stream-browserify
+- readable-stream
 - https-browserify
 - events
 - process
 - text-encoding
 - web-streams-polyfill
-- @peculiar/webcrypto (necessary for `SubtleCrypto` but need to remove)
+- [@peculiar/webcrypto](https://github.com/PeculiarVentures/webcrypto) (necessary for `SubtleCrypto` but need to remove)
 - assert
 - os
 - url

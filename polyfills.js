@@ -5,8 +5,8 @@ import 'react-native-get-random-values';
 import '@ethersproject/shims';
 
 import 'text-encoding';
-import 'web-streams-polyfill';
 import '@azure/core-asynciterator-polyfill';
+import 'react-native-polyfill-globals/auto';
 
 // Necessary for @peculiar/webcrypto.
 if (!global.Buffer) {

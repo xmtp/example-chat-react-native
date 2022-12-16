@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
 import {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Button,
   Platform,
@@ -13,21 +14,24 @@ import {
 } from 'react-native';
 
 import {ethers, Signer} from 'ethers';
-import {Client} from '@xmtp/xmtp-js';
+import {Client, Conversation, DecodedMessage, Stream} from '@xmtp/xmtp-js';
 import {useWalletConnect} from '@walletconnect/react-native-dapp';
 import WalletConnectProvider from '@walletconnect/web3-provider';
+import {utils} from '@noble/secp256k1';
+import {Wallet} from 'ethers';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
 export const RECIPIENT_ADDRESS = 'REPLACE_WITH_ETH_ADDRESS';
 
 const Home = () => {
-  const [client, setClient] = useState<Client | undefined>(undefined);
-  const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  const [client, setClient] = useState<Client>();
+  const [signer, setSigner] = useState<Signer>();
   const [address, setAddress] = useState<string>('');
+  const [conversation, setConversation] = useState<Conversation>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const connector = useWalletConnect();
-
   const provider = new WalletConnectProvider({
     infuraId: INFURA_API_KEY,
     connector: connector,
@@ -45,6 +49,7 @@ const Home = () => {
       };
       requestSignatures();
     } else {
+      setIsLoading(false);
       if (!connector?.connected) {
         return;
       }
@@ -56,47 +61,75 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connector]);
 
-  const connectWallet = useCallback(async () => {
-    await connector?.connect();
-  }, [connector]);
-
-  const sendGm = React.useCallback(async () => {
-    if (!client) {
-      return;
-    }
-    const conversation = await client.conversations.newConversation(
-      RECIPIENT_ADDRESS,
-    );
-    const message = await conversation.send(
-      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
-    );
-    Alert.alert('Message sent', message.content);
-  }, [client]);
-
   useEffect(() => {
     const initXmtpClient = async () => {
-      if (!signer) {
+      if (!signer || client || conversation) {
+        setIsLoading(false);
         return;
       }
+      const xmtp = await Client.create(signer);
+      setClient(xmtp);
+      setIsLoading(false);
 
-      const newAddress = await signer.getAddress();
-      setAddress(newAddress);
-
-      if (!client) {
-        /**
-         * Tip: Ethers' random wallet generation is slow in Hermes https://github.com/facebook/hermes/issues/626.
-         * If you would like to quickly create a random Wallet for testing, use:
-         * import {utils} from @noble/secp256k1;
-         * import {Wallet} from ethers;
-         * await Client.create(new Wallet(utils.randomPrivateKey()));
-         */
-        const xmtp = await Client.create(signer);
-        setClient(xmtp);
-      }
+      const newConversation = await xmtp.conversations.newConversation(
+        RECIPIENT_ADDRESS,
+      );
+      setConversation(newConversation);
     };
     initXmtpClient();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
+
+  useEffect(() => {
+    if (!client || !conversation) {
+      return;
+    }
+    let messageStream: Stream<DecodedMessage>;
+    const closeStream = async () => {
+      if (!messageStream) {
+        return;
+      }
+      await messageStream.return();
+    };
+    const startMessageStream = async () => {
+      closeStream();
+      messageStream = await conversation.streamMessages();
+      for await (const message of messageStream) {
+        if (message.senderAddress === client.address) {
+          continue
+        }
+        Alert.alert('Message received', message.content);
+      }
+    };
+    startMessageStream();
+    return () => {
+      closeStream();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation]);
+
+  const connectWallet = useCallback(async () => {
+    setIsLoading(true);
+    await connector?.connect();
+  }, [connector]);
+
+  const generateWallet = useCallback(async () => {
+    setIsLoading(true);
+    const newSigner = new Wallet(utils.randomPrivateKey());
+    const newAddress = await newSigner.getAddress();
+    setAddress(newAddress);
+    setSigner(newSigner);
+  }, []);
+
+  const sendGm = React.useCallback(async () => {
+    if (!conversation) {
+      return;
+    }
+    const message = await conversation.send(
+      `gm! ${Platform.OS === 'ios' ? 'from iOS' : 'from Android'}`,
+    );
+    Alert.alert('Message sent', message.content);
+  }, [conversation]);
 
   return (
     <SafeAreaView>
@@ -104,13 +137,23 @@ const Home = () => {
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Example Chat App</Text>
-          <Text style={styles.sectionDescription}>
+          <Text style={styles.sectionDescription} selectable={true}>
             {client ? address : 'Sign in with XMTP'}
           </Text>
-          {client ? (
-            <Button title="Send a gm" onPress={sendGm} />
+          {isLoading ? (
+            <ActivityIndicator style={styles.spinner} />
           ) : (
-            <Button title="Sign in" onPress={connectWallet} />
+            <>
+            {client ? (
+              <Button title="Send gm" onPress={sendGm} />
+            ) : (
+              <>
+                <Button title="Sign in" onPress={connectWallet} />
+                <Button title="Generate address" onPress={generateWallet} />
+              </>
+            )
+            }
+            </>
           )}
         </View>
       </ScrollView>
@@ -133,6 +176,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '400',
   },
+  spinner: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
 
 export default Home;
