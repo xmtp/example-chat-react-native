@@ -1,12 +1,10 @@
 # XMTP React Native example app
 
-![Status](https://img.shields.io/badge/Project_Status-Developer_Preview-yellow)
+![Status](https://img.shields.io/badge/Project_Status-Developer_Preview-red)
 
 `example-chat-react-native` provides the XMTP React Native example app, which demonstrates core concepts and capabilities of the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js). The app provides a bare-bones example of integrating the XMTP client SDK into a React Native app.
 
-This example app is in **Developer Preview** status and ready to serve as a reference for you to start building.
-
-However, we do **not** recommend using Developer Preview software in production apps.
+This example app is in **Early Developer Preview** status and not yet ready for building as we investigate [poor performance in listing conversations](https://github.com/xmtp/example-chat-react-native/issues/13). In the meantime, we recommend loading the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js) directly into a WebView as a workaround.
 
 The app uses the [Hermes](https://reactnative.dev/docs/hermes) JavaScript engine, the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js), and [polyfills](#polyfills) to backport modern JavaScript APIs to the React Native environment.
 
