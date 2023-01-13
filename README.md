@@ -1,6 +1,6 @@
 # XMTP React Native example app
 
-![Status](https://img.shields.io/badge/Project_Status-Pre_Preview-red)
+![Status](https://img.shields.io/badge/Project_Status-Pre--Preview-orange)
 
 `example-chat-react-native` provides the XMTP React Native example app, which demonstrates core concepts and capabilities of the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js). The app provides a bare-bones example of integrating the XMTP client SDK into a React Native app.
 
