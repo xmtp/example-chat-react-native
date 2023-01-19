@@ -2,6 +2,9 @@
   "name": "example_chat_rn",
   "displayName": "example_chat_rn",
   "expo": {
-    "scheme": "examplexmtp"
+    "scheme": "examplexmtp",
+    "plugins": [
+      "react-native-v8"
+    ]
   }
 }

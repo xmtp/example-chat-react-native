@@ -22,7 +22,7 @@ import {Wallet} from 'ethers';
 
 export const INFURA_API_KEY = '2bf116f1cc724c5ab9eec605ca8440e1';
 
-export const RECIPIENT_ADDRESS = 'REPLACE_WITH_ETH_ADDRESS';
+export const RECIPIENT_ADDRESS = '0xbEE109b1A3469791a107F9c2b344C67c31FeDe50';
 
 const Home = () => {
   const [client, setClient] = useState<Client>();
@@ -75,6 +75,13 @@ const Home = () => {
         RECIPIENT_ADDRESS,
       );
       setConversation(newConversation);
+
+      for (var i = 0; i < 249; i++) {
+        const newSigner = new Wallet(utils.randomPrivateKey());
+        const newXmtp = await Client.create(newSigner);
+        await newXmtp.conversations.newConversation(address);
+        console.log('Added conversation %d', i);
+      }
     };
     initXmtpClient();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +103,7 @@ const Home = () => {
       messageStream = await conversation.streamMessages();
       for await (const message of messageStream) {
         if (message.senderAddress === client.address) {
-          continue
+          continue;
         }
         Alert.alert('Message received', message.content);
       }
@@ -131,6 +138,20 @@ const Home = () => {
     Alert.alert('Message sent', message.content);
   }, [conversation]);
 
+  const listConversations = React.useCallback(async () => {
+    if (!client) {
+      return;
+    }
+    const before = Date.now();
+    const conversations = await client.conversations.list();
+    const after = Date.now();
+    Alert.alert(
+      `Listed ${conversations.length} conversations in ${
+        after - before
+      } milliseconds`,
+    );
+  }, [client]);
+
   return (
     <SafeAreaView>
       <StatusBar />
@@ -144,15 +165,20 @@ const Home = () => {
             <ActivityIndicator style={styles.spinner} />
           ) : (
             <>
-            {client ? (
-              <Button title="Send gm" onPress={sendGm} />
-            ) : (
-              <>
-                <Button title="Sign in" onPress={connectWallet} />
-                <Button title="Generate address" onPress={generateWallet} />
-              </>
-            )
-            }
+              {client ? (
+                <>
+                  <Button title="Send gm" onPress={sendGm} />
+                  <Button
+                    title="List conversations"
+                    onPress={listConversations}
+                  />
+                </>
+              ) : (
+                <>
+                  <Button title="Sign in" onPress={connectWallet} />
+                  <Button title="Generate address" onPress={generateWallet} />
+                </>
+              )}
             </>
           )}
         </View>
@@ -178,8 +204,8 @@ const styles = StyleSheet.create({
   },
   spinner: {
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 
 export default Home;
