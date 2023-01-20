@@ -17,14 +17,15 @@ To learn more about XMTP and get answers to frequently asked questions, see [FAQ
 ## Requirements
 
 The XMTP client SDK relies on `BigInt` and requires a React Native JavaScript environment that supports `BigInts` including:
-- Hermes v0.70+ for both iOS and Android (used in this example)
-- JavaScriptCore for iOS (iOS 14+)
-- [V8](https://github.com/Kudo/react-native-v8) for Android
+- JavaScriptCore for iOS (iOS 14+) -- Used in this example
+- [V8](https://github.com/Kudo/react-native-v8) for Android -- Used in this example
+- Hermes v0.70+ for both iOS and Android -- Not recommended for the time being due to [performance issues](https://github.com/xmtp/example-chat-react-native/issues/13)
 
 ## Get started
 
 1. Follow the [React Native guide](https://reactnative.dev/docs/environment-setup) to set up a CLI environment.
 1. Set the `RECIPIENT_ADDRESS` in [Home.tsx](https://github.com/xmtp/example-chat-react-native/blob/main/components/Home.tsx) to an address already authenticated with XMTP. If you have not yet authenticated with XMTP, [sign in](https://xmtp.vercel.app/) on the [dev network](https://github.com/xmtp/xmtp-js#xmtp-production-and-dev-network-environments).
+1. Run `yarn`
 1. Run `npx pod-install` to install iOS dependencies.
 1. Run `npx react-native start` to start Metro.
 1. Run `npx react-native run-ios` or `npx react-native run-android` to run the app.
