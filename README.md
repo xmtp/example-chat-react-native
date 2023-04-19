@@ -1,18 +1,24 @@
-# XMTP React Native example app
+# Archived: XMTP React Native example app
 
-![Status](https://img.shields.io/badge/Project_Status-Pre--Preview-orange)
+![Status](https://img.shields.io/badge/Project_Status-Archived-lightgrey)
 
-`example-chat-react-native` provides the XMTP React Native example app, which demonstrates core concepts and capabilities of the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js). The app provides a bare-bones example of integrating the XMTP client SDK into a React Native app.
+This **archived** XMTP React Native example app provides a barebones exploration of integrating the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js) into a React Native app. Specifically, this app uses the [Hermes](https://reactnative.dev/docs/hermes) JavaScript engine, the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js), and [polyfills](#polyfills) to backport modern JavaScript APIs to the React Native environment.
 
-This example app is in **Pre-Preview** status and not yet ready for building as we investigate [poor performance in listing conversations](https://github.com/xmtp/example-chat-react-native/issues/13). In the meantime, we recommend loading the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js) directly into a WebView as a workaround.
+The app has been **archived** because this integration approach resulted in [very slow app performance when listing conversations](https://github.com/xmtp/example-chat-react-native/issues/13).
 
-The app uses the [Hermes](https://reactnative.dev/docs/hermes) JavaScript engine, the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js), and [polyfills](#polyfills) to backport modern JavaScript APIs to the React Native environment.
+Here are two alternative approaches to building an XMTP app with React Native:
 
-The app is maintained by [XMTP Labs](https://xmtplabs.com/) and distributed under MIT License for learning about and developing applications built with [XMTP](https://xmtp.org), an open protocol and network for secure web3 messaging. Build with XMTP to send messages between blockchain accounts, including DMs, notifications, announcements, and more.
+- Explore the [XMTP React Native quickstart app](https://github.com/xmtp/xmtp-quickstart-react-native), which demonstrates how to load the [XMTP client SDK for JavaScript](https://github.com/xmtp/xmtp-js) directly into a WebView. This is a **workaround approach** that some apps are using in the short term.
+
+- Longer term, consider building your app with the [XMTP React Native SDK](https://github.com/xmtp/xmtp-react-native), which is currently a work in progress. This SDK also provides an [example app](https://github.com/xmtp/xmtp-react-native/tree/main/example) for your reference.
 
 To learn more about XMTP and get answers to frequently asked questions, see [FAQ about XMTP](https://xmtp.org/docs/dev-concepts/faq).
 
 ![x-red-sm](https://user-images.githubusercontent.com/510695/163488403-1fb37e86-c673-4b48-954e-8460ae4d4b05.png)
+
+---
+
+This archived XMTP React Native example app is distributed under MIT License for learning about and developing applications built with [XMTP](https://xmtp.org), an open protocol and network for secure web3 messaging.
 
 ## Requirements
 
